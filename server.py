@@ -39,8 +39,8 @@ def query_sql(sql_text: str, max_rows: int = 100) -> dict[str, Any]:
     SHOW CREATE TABLE main.default.t1
     DESCRIBE EXTENDED main.default.t1
     """
-    if max_rows < 1 or max_rows > 1000:
-        raise ValueError("max_rows must be between 1 and 1000")
+    if max_rows < 1 or max_rows > 100000:
+        raise ValueError("max_rows must be between 1 and 100000")
 
     with _connect() as conn:
         with conn.cursor() as cur:
@@ -77,6 +77,19 @@ def describe_extended(table_name: str) -> dict[str, Any]:
     catalog.schema.table
     """
     sql_text = f"DESCRIBE EXTENDED {table_name}"
+    rows = _execute(sql_text)
+    return {"table": table_name, "result": rows}
+
+
+@mcp.tool()
+def describe_detail(table_name: str) -> dict[str, Any]:
+    """
+    Return DESCRIBE DETAIL output for a Unity Catalog table.
+
+    Use a fully qualified name when possible:
+    catalog.schema.table
+    """
+    sql_text = f"DESCRIBE DETAIL {table_name}"
     rows = _execute(sql_text)
     return {"table": table_name, "result": rows}
 
